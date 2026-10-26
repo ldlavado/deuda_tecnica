@@ -54,6 +54,9 @@ class ProcessBillingUseCase {
       });
     }
 
+    // DELIBERATE LINT ERROR FOR QUALITY GATE EVIDENCE
+    unusedVariableForGateBlock = true;
+
     return {
       success: chargeResult.success,
       code: chargeResult.success ? 'BILLING_PROCESSED' : 'GATEWAY_TIMEOUT',
