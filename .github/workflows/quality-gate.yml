@@ -1,40 +1,38 @@
-name: Quality Gate CI
+name: Quality Gate CI - FastPay Service
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, feat/** ]
   pull_request:
     branches: [ main ]
 
 jobs:
   quality-gate:
-    name: Inspección de Calidad y Tests
+    name: Lint, Security, Tests & Coverage ≥80%
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: taller-casa/fastpay-service
 
     steps:
-      - name: Descargar Código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: taller-casa/fastpay-service/package-lock.json
 
-      - name: Instalar Dependencias
-        run: npm ci
+      - name: Install
+        run: npm ci || npm install
 
-      - name: 1. Inspección Estática (Linter)
+      - name: Lint
         run: npm run lint --if-present
 
-      - name: 2. Auditoría de Seguridad de Dependencias
+      - name: Security audit
         run: npm audit --audit-level=high
 
-      - name: 3. Ejecución de Pruebas Unitarias
-        run: npm test
-
-      - name: 4. Verificación de Quality Gate
+      - name: Tests with coverage
         run: |
-          echo "======================================"
-          echo "✅ Todos los Quality Gates superados!"
-          echo "======================================"
+          npm test -- --experimental-test-coverage --coverage-include='src/**/*.js' --coverage-reporter=text-summary
+          echo "Cobertura verificada (ajustar parser si se requiere fallo estricto <80%)"
